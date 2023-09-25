@@ -1,0 +1,65 @@
+﻿@model FormApp.Areas.LOC_State.Models.LOC_StateModel;
+
+@{
+		Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="formbold-main-wrapper">
+	<div class="formbold-form-wrapper">
+		<form method="post" asp-area="LOC_State" asp-controller="LOC_State" asp-action="AddEditSave">
+			<input type="hidden" asp-for="StateID" />
+			<div>
+				<h3 class="text-center">@ViewData["addEdit"] STATE</h3>
+				<hr />
+			</div>
+			<div class="formbold-input-flex mt-5">
+				<div>
+					<input type="text"
+						   id="StateName"
+						   placeholder="Enter State Name"
+						   asp-for="StateName"
+						   class="formbold-form-input" />
+					<label for="StateName" class="formbold-form-label"> State Name * </label>
+				</div>
+				<span class="h6 text-danger fst-italic" asp-validation-for="StateName"></span>
+			</div>
+
+			<div class="formbold-input-flex">
+				<div>
+					<input type="text"
+						   id="StateCode"
+						   asp-for="StateCode"
+						   placeholder="Enter State Code"
+						   class="formbold-form-input" />
+					<label for="StateCode" class="formbold-form-label"> State Code *</label>
+				</div>
+				<span class="h6 text-danger fst-italic" asp-validation-for="StateCode"></span>
+
+			</div>
+
+			<div class="formbold-input-flex">
+				<div>
+					<select id="CountryID" class="form-select" aria-label="Multiple select example" asp-for="CountryID" asp-items="@(new SelectList(ViewBag.CountryList,"CountryID","CountryName"))">
+						<option value="" disabled selected>Country List</option>
+					</select>
+					<label for="CountryID" class="formbold-form-label"> Country Name *</label>
+				</div>
+				<span class="h6 text-danger fst-italic" asp-validation-for="CountryID"></span>
+
+			</div>
+
+
+			<button type="submit" class="formbold-btn">
+				Submit
+			</button>
+		</form>
+	</div>
+</div>
+
+@section Scripts{
+	@{
+		await Html.RenderPartialAsync("_ValidationScriptsPartial");
+
+	}
+
+}

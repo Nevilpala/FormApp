@@ -1,0 +1,19 @@
+﻿@model Extra
+
+@{
+    Layout = null;
+
+}
+
+@Html.TextBoxFor(m => m.Name)
+<br />
+<br />
+@Html.RadioButton("radioBtn","val",true) 
+@Html.RadioButton("radioBtn","val",true)
+@Html.RadioButton("radioBtn","val",false)
+<br />
+<br />
+@Html.DropDownList("selectList",new SelectList(new []{"Male","Female"}))
+<br />
+<br />
+@Html.ListBox("selectList",new SelectList(new []{"Male","Female"}), new { @class="form-control"})

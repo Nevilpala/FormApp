@@ -1,0 +1,49 @@
+﻿@model FormApp.Models.RegisterModel;
+<form asp-action="Register" asp-controller="Account" autocomplete="off" class="form-login">
+	@Html.AntiForgeryToken()
+
+	@if (ViewData["RegisterError"] != null)
+	{
+		<div class="text-danger">
+			@ViewData["RegisterError"]
+		</div>
+	}
+	<div class="input-boxes">
+		<div class="input-box">
+			<i class="fas fa-user"></i>
+			<input asp-for="Username" type="text" placeholder="Enter your Username" required>
+		</div>
+		<span class="text-danger" asp-validation-for="Username"></span>
+
+		<div class="input-box">
+			<i class="fas fa-envelope"></i>
+			<input type="text" asp-for="Email" placeholder="Enter your email">
+		</div>
+		@*<span class="text-danger" asp-validation-for="Email"></span>*@
+
+		<div class="input-box">
+			<i class="fas fa-lock"></i>
+			<input asp-for="Password" type="password" placeholder="Enter your password" required>
+		</div>
+		<span class="text-danger" asp-validation-for="Password"></span>
+
+		<div class="input-box">
+			<i class="fas fa-lock"></i>
+			<input asp-for="ConfirmPassword" type="password" placeholder="Confirm your password" required>
+		</div>
+		<span class="text-danger" asp-validation-for="ConfirmPassword"></span>
+
+		<div class="button input-box">
+			<input type="submit" value="Sumbit">
+		</div>
+		<div class="text sign-up-text">Already have an account? <label for="flip">Login now</label></div>
+	</div>
+</form>
+
+
+@section Scripts{
+	@{
+		await Html.RenderPartialAsync("_ValidationScriptsPartial");
+	}
+	
+}

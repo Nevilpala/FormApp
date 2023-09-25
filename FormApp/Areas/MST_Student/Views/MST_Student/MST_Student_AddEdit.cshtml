@@ -1,0 +1,134 @@
+﻿@model FormApp.Areas.MST_Student.Models.MST_StudentModel;
+@{
+	Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<div class="container">
+	<h2>Registration Form</h2>
+	<form method="post" asp-area="MST_Student" asp-controller="MST_Student" asp-action="AddEditSave" class="form">
+		@Html.HiddenFor(x => x.StudentID)
+		<div class="input-box">
+			<label>Full Name</label>
+			<input type="text" placeholder="Enter full name" asp-for="StudentName" />
+			<span class="h6 text-danger fst-italic " asp-validation-for="StudentName"></span>
+
+		</div>
+		<div class="column">
+			<div class="input-box">
+				<label>Email Address</label>
+				<input type="text" placeholder="Enter email address" asp-for="Email" />
+				<span class="h6 text-danger fst-italic " asp-validation-for="Email"></span>
+
+			</div>
+			<div class="input-box">
+				<label>Branch</label>
+				<div class="select-box">
+					<select class="w-100" asp-for="BranchID" asp-items="@(new SelectList(ViewBag.BranchList,"BranchID","BranchName"))">
+						<option selected disabled>Select Branch</option>
+					</select>
+				</div>
+				<span class="h6 text-danger fst-italic " asp-validation-for="BranchID"></span>
+
+			</div>
+
+		</div>
+
+		<div class="column">
+			<div class="input-box">
+				<label>Student Phone Number</label>
+				<input type="text" placeholder="Enter phone number" asp-for="MobileNoStudent" />
+				<span class="h6 text-danger fst-italic " asp-validation-for="MobileNoStudent"></span>
+
+			</div>
+			<div class="input-box">
+				<label>Father Phone Number</label>
+				<input type="text" placeholder="Enter phone number" asp-for="MobileNoFather" />
+				<span class="h6 text-danger fst-italic " asp-validation-for="MobileNoFather"></span>
+
+			</div>
+			<div class="input-box">
+				<label>Birth Date</label>
+				<input class="form-controls" type="date" placeholder="Enter birth date" asp-for="BirthDate" />
+				<span class="h6 text-danger fst-italic " asp-validation-for="BirthDate"></span>
+
+			</div>
+			<div class="input-box">
+				<label>Age</label>
+				<input type="number" placeholder="Enter Age" asp-for="Age" />
+				<span class="h6 text-danger fst-italic " asp-validation-for="Age"></span>
+
+			</div>
+		</div>
+		<div class="gender-box">
+			<div class="column">
+				<div class="w-50">
+					<lable>Active</lable>
+
+					<div class="gender-option">
+						<div class="gender">
+							<input type="radio" id="isActiveYes" name="IsActive" value="True" checked asp-for="IsActive" />
+							<label for="isActiveYes">Yes</label>
+						</div>
+						<div class="gender">
+							<input type="radio" id="isActiveNO" value="False" asp-for="IsActive" name="IsActive" />
+							<label for="isActiveNO">No</label>
+						</div>
+					</div>
+				</div>
+				<div class="">
+					<lable>Gender</lable>
+
+					<div class="gender-option">
+						<div class="gender">
+							<input type="radio" id="check-male" name="gender" value="Male" checked asp-for="Gender" />
+							<label for="check-male">Male</label>
+						</div>
+						<div class="gender">
+							<input type="radio" id="check-female" value="Female" name="gender" asp-for="Gender" />
+							<label for="check-female">Female</label>
+						</div>
+						<div class="gender">
+							<input type="radio" id="check-other" value="Other" name="gender" asp-for="Gender" />
+							<label for="check-other">prefer not to say</label>
+						</div>
+					</div>
+				</div>
+				<span class="h6 text-danger fst-italic " asp-validation-for="Gender"></span>
+			</div>
+		</div>
+		<div class="input-box">
+			<label>Address</label>
+			<input type="text" placeholder="Enter street address" asp-for="Address" />
+			<span class="h6 text-danger fst-italic " asp-validation-for="Address"></span>
+		</div>
+
+		<div class="column">
+
+			<div class="input-box">
+				<label>City</label>
+				<div class="select-box">
+					<select asp-for="CityID" asp-items="@(new SelectList(ViewBag.CityList,"CityID","CityName"))">
+						<option selected disabled>Select City</option>
+					</select>
+				</div>
+				<span class="h6 text-danger fst-italic " asp-validation-for="CityID"></span>
+			</div>
+			<div class="input-box">
+				<label>Password</label>
+				<input type="text" placeholder="Enter Password" asp-for="Password" />
+				<span class="h6 text-danger fst-italic " asp-validation-for="Password"></span>
+
+			</div>
+		</div>
+
+
+
+		<button type="submit">Submit</button>
+	</form>
+</div>
+@section Scripts{
+	@{
+		await Html.RenderPartialAsync("_ValidationScriptsPartial");
+	}
+}

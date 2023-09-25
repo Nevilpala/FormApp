@@ -1,0 +1,53 @@
+﻿@model FormApp.Areas.MST_Branch.Models.MST_BranchModel;
+@{
+	Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="formbold-main-wrapper">
+	<div class="formbold-form-wrapper">
+		<form method="post" asp-area="MST_Branch" asp-controller="MST_Branch" asp-action="AddEditSave">
+			<input type="hidden" asp-for="BranchID" />
+			<div>
+				<h3 class="text-center">@ViewData["addEdit"] BRANCH</h3>
+				<hr />
+			</div>
+			<div class="formbold-input-flex mt-5">
+				<div>
+					<input type="text"
+						   id="BranchName"
+						   placeholder="Enter Branch Name"
+						   asp-for="BranchName"
+						   class="formbold-form-input" />
+					<label for="BranchName" class="formbold-form-label"> Branch Name * </label>
+				</div>
+				<span class="h6 text-danger fst-italic " asp-validation-for="BranchName"></span>
+			</div>
+
+			<div class="formbold-input-flex">
+				<div>
+					<input type="text"
+						   id="BranchCode"
+						   asp-for="BranchCode"
+						   placeholder="Enter Branch Code"
+						   class="formbold-form-input" />
+					<label for="email" class="formbold-form-label"> Branch Code *</label>
+				</div>
+				<span class="h6 text-danger fst-italic" asp-validation-for="BranchCode"></span>
+
+			</div>
+
+
+
+			<button type="submit" class="formbold-btn">
+				Submit
+			</button>
+		</form>
+	</div>
+</div>
+
+
+@section Scripts{
+	@{
+		await Html.RenderPartialAsync("_ValidationScriptsPartial");
+	}
+}

@@ -1,0 +1,181 @@
+﻿@using System.Data;
+@model DataTable;
+@{
+	Layout = "~/Views/Shared/_Layout.cshtml";
+	ViewData["Title"] = "City List";
+}
+
+<div>
+	<div class="d-flex justify-content-between align-items-">
+		<div class="pagetitle ">
+			<h1>City List</h1>
+			<nav>
+				<ol class="breadcrumb">
+					<li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Home</a></li>
+					<li class="breadcrumb-item active">City List</li>
+				</ol>
+			</nav>
+		</div>
+		<div>
+			<a class="btn btn-success" asp-controller="LOC_City" asp-area="LOC_City" asp-action="ADDEDIT">+ Add City</a>
+		</div>
+	</div>
+
+	<div class="page-content page-container" id="page-content">
+		<div class="padding">
+			<div class="container ">
+
+				<div class="col-lg grid-margin stretch-card">
+
+					<form class="row align-items-end g-3 border border-2 rounded p-3 my-4" method="POST" asp-area="LOC_City" asp-controller="LOC_City" asp-action="Index" asp-route-filter="true">
+						<div class="col-12">
+							<h2>Filter</h2>
+							<hr />
+						</div>
+						<div class="col-md">
+							<label for="CityName" class="form-label">City Name</label>
+							<input type="text" name="CityName" class="form-control" id="CityName" placeholder="e.g. Rajkot">
+						</div>
+						<div class="col-md">
+							<label for="Citycode" class="form-label">City Code </label>
+							<input type="text" name="Citycode" class="form-control" id="Citycode" placeholder="e.g. RAJ">
+						</div>
+						<div class="col-md">
+							<label for="CountryID" class="form-label">Country</label>
+
+							<select id="CountryID" name="CountryID" class="form-select" asp-items="@(new SelectList(ViewBag.CountryList,"CountryID","CountryName"))" onchange="stateChange()">
+								<option value="" selected>Select Country</option>
+							</select>
+						</div>
+
+						<div class="col-md">
+							<label for="StateID" class="form-label">State</label>
+
+							<select id="StateID" name="StateID" class="form-select" asp-items="@(new SelectList(ViewBag.StateList,"StateID","StateName"))" onchange="cityChange()">
+								<option value="" selected>Select State</option>
+							</select>
+						</div>
+						<div class="col-md">
+							<button type="submit" title="Search" class="btn btn-success w-100">Search <i class="bi bi-search"></i></button>
+						</div>
+					</form>
+				</div>
+
+				<div class="card">
+					<div class="card-body py-3 px-1">
+						<div class="table-responsive">
+
+							<table class="table table-striped" id="">
+								<thead>
+									<tr>
+										<th>Sr no.</th>
+										<th>City Name</th>
+										<th>City Code</th>
+										<th>State Name</th>
+										<th>Country Name</th>
+										<th class="text-center">CreatedDate</th>
+										<th class="text-center">Modified</th>
+										<th class="text-center">Action</th>
+									</tr>
+								</thead>
+								<tbody>
+									@{
+										int i = 1;
+									}
+									@if (Model.Rows.Count > 0)
+
+									{
+										@foreach (DataRow dataRow in Model.Rows)
+										{
+											<tr>
+												<th>@i</th>
+												<td>@dataRow["CityName"]</td>
+												<td>@dataRow["Citycode"]</td>
+												<td>@dataRow["StateName"]</td>
+												<td>@dataRow["CountryName"]</td>
+												<td class="text-center">@Convert.ToDateTime(dataRow["CreationDate"]).ToString("dd-MM-yyyy")</td>
+												<td class="text-center">@Convert.ToDateTime(dataRow["Modified"]).ToString("dd-MM-yyyy")</td>
+												<td class="text-center ">
+													<div class="d-flex justify-content-center align-items-center gap-3">
+														<form asp-area="LOC_City" asp-controller="LOC_City" asp-action="AddEdit">
+															<input type="hidden" name="CityID" value="@Convert.ToInt32(dataRow["CityID"])">
+															<button type="submit" class="text-success" asp-area="LOC_City" asp-controller="LOC_City" asp-action="AddEdit">
+																<i class="bi bi-pencil-fill"></i>
+															</button>
+														</form>
+														<form asp-area="LOC_City" asp-controller="LOC_City" asp-action="DeleteCity">
+															<input type="hidden" name="CityID" value="@Convert.ToInt32(dataRow["CityID"])">
+															<button type="submit" class="text-danger DeleteConfirmSweetAlert">
+																<i class="bi bi-trash3-fill"></i>
+															</button>
+														</form>
+
+													</div>
+
+												</td>
+											</tr>
+											i++;
+										}
+									}
+									else
+									{
+										<tr class="text-center">
+											<td colspan="8"> No City Found</td>
+										</tr>
+									}
+
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+@section Scripts{
+	@{
+		await Html.RenderPartialAsync("_ValidationScriptsPartial");
+	}
+	<script>
+		function stateChange() {
+			var CountryID = $("#CountryID").val();
+
+			if (CountryID !== "" || Country != null) {
+				$("#StateID").empty();
+				$("#StateID").append($("<option></option>").val("").html("Select State"));
+				$.ajax(
+					{
+						type: "POST",
+						contentType: "application/json; charset=utf-8",
+						url: "@Url.Action("DropDownByCountry", "LOC_City")" + "?&CountryID=" + CountryID,
+						data: {},
+						dataType: "json",
+						success: function (Result) {
+							$("#StateID").attr("disabled", false);
+
+							$.each(Result,
+								function (key, value) {
+									console.log(value)
+									$("#StateID").append($("<option data-countryID=" + value.countryID + "></option>").val(value.stateID).html(value.stateName));
+								});
+						},
+						error: function (r) {
+							$("#StateID").attr("disabled", true);
+							alert("Error while loading combobox.");
+							$("#StateID").append($("<option></option>").val("").html("Select State"));
+
+						}
+					});
+			}
+			else {
+				$("#StateID").empty();
+				$("#StateID").attr("disabled", false);
+				$("#StateID").append($("<option></option>").val("").html("Select State"));
+			}
+		}
+
+	</script>
+}

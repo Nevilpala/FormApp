@@ -1,0 +1,90 @@
+﻿@using System.Data;
+@model DataTable;
+@{
+	Layout = "~/Views/Shared/_Layout.cshtml";
+	ViewData["Title"] = "Branch List";
+}
+
+<div>
+	<div class="d-flex justify-content-between align-items-">
+		<div class="pagetitle ">
+			<h1>Branch List</h1>
+			<nav>
+				<ol class="breadcrumb">
+					<li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Home</a></li>
+					<li class="breadcrumb-item active">Branch List</li>
+				</ol>
+			</nav>
+		</div>
+		<div>
+			<a class="btn btn-success" asp-controller="MST_Branch" asp-area="MST_Branch" asp-action="ADDEDIT">+ Add Branch</a>
+		</div>
+	</div>
+
+	<div class="page-content page-container" id="page-content">
+		<div class="padding">
+			<div class="container">
+				<div class="card">
+					<div class="card-body py-2	">
+
+						<div class="table-responsive">
+							<form method="POST" asp-area="MST_Branch" asp-controller="MST_Branch" asp-action="Index">
+								<div class="d-flex justify-content-end mt-2 mb-4">
+									<input type="text" name="SearchName" value="@ViewBag.SearchName" placeholder="Search" title="Enter search keyword" class="form-control w-25">
+									<button type="submit" title="Search" class="btn btn-success ms-2"><i class="bi bi-search"></i></button>
+								</div>
+							</form>
+							<table class="table table-striped">
+								<thead>
+									<tr>
+										<th>Sr no.</th>
+										<th>Branch Name</th>
+										<th>Branch Code</th>
+										<th class="text-center">Created</th>
+										<th class="text-center">Modified</th>
+										<th class="text-center">Action</th>
+									</tr>
+								</thead>
+								<tbody>
+									@{
+										int i = 1;
+									}
+									@if(Model.Rows.Count > 0)
+									{
+										@foreach (DataRow dataRow in Model.Rows)
+										{
+											<tr>
+												<th>@i</th>
+												<td>@dataRow["BranchName"]</td>
+												<td>@dataRow["BranchCode"]</td>
+												<td class="text-center">@Convert.ToDateTime(dataRow["Created"]).ToString("dd-MM-yyyy HH:MM")</td>
+												<td class="text-center">@Convert.ToDateTime(dataRow["Modified"]).ToString("dd-MM-yyyy HH:MM")</td>
+												<td class="text-center d-flex justify-content-center align-items-center gap-3">
+													<a class="text-success" asp-area="MST_Branch" asp-controller="MST_Branch" asp-action="AddEdit" asp-route-BranchID="@Convert.ToInt32(dataRow["BranchID"])">
+														<i class="bi bi-pencil-fill"></i>
+													</a>
+
+													<a class="text-danger" asp-area="MST_Branch" asp-controller="MST_Branch" asp-action="DeleteBranch" asp-route-BranchID="@Convert.ToInt32(dataRow["BranchID"])">
+														<i class="bi bi-trash3-fill"></i>
+													</a>
+												</td>
+											</tr>
+											i++;
+										}
+									}else
+									{
+										<tr class="text-center">
+											<td colspan="6"> No Branch Found</td>
+										</tr>
+									}
+
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+
+			</div>
+		</div>
+	</div>
+</div>

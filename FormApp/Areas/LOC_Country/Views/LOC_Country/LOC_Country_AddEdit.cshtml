@@ -1,0 +1,53 @@
+﻿@model FormApp.Areas.LOC_Country.Models.LOC_CountryModel;
+@{
+	Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="formbold-main-wrapper">
+	<div class="formbold-form-wrapper">
+		<form method="post" asp-area="LOC_Country" asp-controller="LOC_Country" asp-action="AddEditSave">
+			<input type="hidden" asp-for="CountryID" />
+			<div>
+				<h3 class="text-center">@ViewData["addEdit"] COUNTRY</h3>
+				<hr />
+			</div>
+			<div class="formbold-input-flex mt-5">
+				<div>
+					<input type="text"
+						   id="CountryName"
+						   placeholder="Enter Country Name"
+						   asp-for="CountryName"
+						   class="formbold-form-input" />
+					<label for="CountryName" class="formbold-form-label"> Country Name * </label>
+				</div>
+				<span class="h6 text-danger fst-italic " asp-validation-for="CountryName"></span>
+			</div>
+
+			<div class="formbold-input-flex">
+				<div>
+					<input type="text"
+						   id="CountryCode"
+						   asp-for="CountryCode"
+						   placeholder="Enter Country Code"
+						   class="formbold-form-input" />
+					<label for="email" class="formbold-form-label"> Country Code *</label>
+				</div>
+				<span class="h6 text-danger fst-italic" asp-validation-for="CountryCode"></span>
+
+			</div>
+
+
+
+			<button type="submit" class="formbold-btn">
+				Submit
+			</button>
+		</form>
+	</div>
+</div>
+
+
+@section Scripts{
+	@{
+		await Html.RenderPartialAsync("_ValidationScriptsPartial");
+	}
+}

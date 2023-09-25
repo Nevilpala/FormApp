@@ -1,0 +1,110 @@
+﻿@using System.Data;
+@model DataTable;
+@{
+	Layout = "~/Views/Shared/_Layout.cshtml";
+	ViewData["Title"] = "State List";
+}
+
+<div>
+	<div class="d-flex justify-content-between align-items-">
+		<div class="pagetitle ">
+			<h1>State List</h1>
+			<nav>
+				<ol class="breadcrumb">
+					<li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Home</a></li>
+					<li class="breadcrumb-item active">State List</li>
+				</ol>
+			</nav>
+		</div>
+		<div>
+			<a class="btn btn-success" asp-controller="LOC_State" asp-area="LOC_State" asp-action="ADDEDIT">+ Add State</a>
+		</div>
+	</div>
+
+	<div class="page-content page-container" id="page-content">
+		<div class="padding">
+			<div class="container">
+				<form class="row align-items-end g-3 border border-2 rounded p-3 my-4" method="POST" asp-area="LOC_State" asp-controller="LOC_State" asp-action="Index" asp-route-filter="true">
+					<div class="col-12">
+						<h2>Filter</h2>
+						<hr />
+					</div>
+					<div class="col-md">
+						<label for="StateName" class="form-label">State Name</label>
+						<input type="text" name="StateName" class="form-control" id="StateName" placeholder="e.g. Bihar">
+					</div>
+					<div class="col-md">
+						<label for="StateCode" class="form-label">State Code </label>
+						<input type="text" name="StateCode" class="form-control" id="StateCode" placeholder="e.g. BHR">
+					</div>
+					<div class="col-md">
+						<label for="CountryID" class="form-label">Country</label>
+
+						<select id="CountryID" name="CountryID" class="form-select" asp-items="@(new SelectList(ViewBag.CountryList,"CountryID","CountryName"))">
+							<option value="" selected>Select Country</option>
+						</select>
+					</div>
+
+					<div class="col-md">
+						<button type="submit" title="Search" class="btn btn-success w-100">Search <i class="bi bi-search"></i></button>
+					</div>
+				</form>
+				<div class="card">
+					<div class="card-body py-4	">
+						<div class="table-responsive">
+							<table class="table table-striped">
+								<thead>
+									<tr>
+										<th>Sr no.</th>
+										<th>State Name</th>
+										<th>State Code</th>
+										<th>Country Name</th>
+										<th class="text-center">Created</th>
+										<th class="text-center">Modified</th>
+										<th class="text-center">Action</th>
+									</tr>
+								</thead>
+								<tbody>
+									@{
+										int i = 1;
+									}
+									@if (Model.Rows.Count > 0)
+									{
+
+										@foreach (DataRow dataRow in Model.Rows)
+										{
+											<tr>
+												<th>@i</th>
+												<td>@dataRow["StateName"]</td>
+												<td>@dataRow["StateCode"]</td>
+												<td>@dataRow["CountryName"]</td>
+												<td class="text-center">@Convert.ToDateTime(dataRow["Created"]).ToString("dd-MM-yyyy HH:MM")</td>
+												<td class="text-center">@Convert.ToDateTime(dataRow["Modified"]).ToString("dd-MM-yyyy HH:MM")</td>
+												<td class="text-center d-flex justify-content-center align-items-center gap-3">
+													<a class="text-success" asp-area="LOC_State" asp-controller="LOC_State" asp-action="AddEdit" asp-route-StateID="@Convert.ToInt32(dataRow["StateID"])">
+														<i class="bi bi-pencil-fill"></i>
+													</a>
+
+													<a class="text-danger" asp-area="LOC_State" asp-controller="LOC_State" asp-action="DeleteState" asp-route-StateID="@Convert.ToInt32(dataRow["StateID"])">
+														<i class="bi bi-trash3-fill"></i>
+													</a>
+												</td>
+											</tr>
+											i++;
+										}
+									}
+									else
+									{
+										<tr class="text-center">
+											<td colspan="8"> No State Found</td>
+										</tr>
+									}
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

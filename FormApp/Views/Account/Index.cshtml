@@ -1,0 +1,94 @@
+﻿@model LoginModel;
+@{
+	ViewData["Title"] = "Login";
+	Layout = "~/Views/Shared/_Login2.cshtml";
+
+}
+
+<div class="panda">
+	<div class="ear"></div>
+	<div class="face">
+		<div class="eye-shade"></div>
+		<div class="eye-white">
+			<div class="eye-ball"></div>
+		</div>
+		<div class="eye-shade rgt"></div>
+		<div class="eye-white rgt">
+			<div class="eye-ball"></div>
+		</div>
+		<div class="nose"></div>
+		<div class="mouth"></div>
+	</div>
+	<div class="body"> </div>
+	<div class="foot">
+		<div class="finger"></div>
+	</div>
+	<div class="foot rgt">
+		<div class="finger"></div>
+	</div>
+</div>
+<form class="@(ViewBag.ErrorMessage != null ? "wrong-entry" : "")" method="post" asp-action="Login" asp-controller="Account" autocomplete="off">
+	@if (ViewBag.ErrorMessage != null)
+	{
+		<div class="text-danger">
+			@ViewBag.ErrorMessage
+		</div>
+	}
+	<div class="hand"></div>
+	<div class="hand rgt"></div>
+	<h1>Address Book Login</h1>
+	<div class="form-group">
+		<input asp-for="Username" required="required" class="form-control" autocomplete="off" />
+		<label class="form-label">Username</label>
+		<span asp-validation-for="Username" class="text-danger"></span>
+
+	</div>
+	<div class="form-group">
+		<input asp-for="Password" id="password" type="password" required="required" class="form-control" autocomplete="off" />
+		<label class="form-label">Password</label>
+		<span asp-validation-for="Password" class="text-danger"></span>
+
+	</div>
+	<button class="btn">Login </button>
+
+</form>
+
+
+@section Scripts{
+	@{
+		await Html.RenderPartialAsync("_ValidationScriptsPartial");
+	}
+	<script>
+		$(document).ready(function () {
+			$('#password').focusin(function () {
+				$('form').addClass('up')
+			});
+			$('#password').focusout(function () {
+				$('form').removeClass('up')
+			});
+
+			// Panda Eye move
+			$(document).on("mousemove", function (event) {
+				var dw = $(document).width() / 15;
+				var dh = $(document).height() / 15;
+				var x = event.pageX / dw;
+				var y = event.pageY / dh;
+				$('.eye-ball').css({
+					width: x,
+					height: y
+				});
+			});
+
+			$('.btn').click(function () {
+				if (true) {
+					$('form').addClass('wrong-entry');
+					setTimeout(function () {
+						$('form').removeClass('wrong-entry');
+					}, 3000);
+				}
+
+			});
+
+		});
+	</script>
+	}

@@ -1,0 +1,31 @@
+﻿@model FormApp.Models.LoginModel;
+<form method="post" asp-action="Login" asp-controller="Account" autocomplete="off" class="form-login">
+	@Html.AntiForgeryToken()
+
+	<div class="input-boxes">
+		<div class="input-box">
+			<i class="fas fa-envelope"></i>
+			<input type="text" asp-for="Username" id="LoginUsername" placeholder="Enter your Usename" required>
+		</div>
+		<span class="text-danger" asp-validation-for="Username"></span>
+
+		<div class="input-box">
+			<i class="fas fa-lock"></i>
+			<input type="password" asp-for="Password" id="LoginPassword" placeholder="Enter your password" required>
+		</div>
+		<span class="text-danger" asp-validation-for="Password"></span>
+
+		<div class="text"><a href="#">Forgot password?</a></div>
+		<div class="button input-box">
+			<input type="submit" value="Sumbit">
+		</div>
+		<div class="text sign-up-text">Don't have an account? <label for="flip">Sigup now</label></div>
+	</div>
+</form>
+
+
+@section Scripts{
+	@{
+		await Html.RenderPartialAsync("_ValidationScriptsPartial");
+	}
+}

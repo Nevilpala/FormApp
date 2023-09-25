@@ -1,0 +1,84 @@
+﻿@model FormApp.Models.ViewLoginRegisterModel;
+@{
+	ViewData["Title"] = "Login";
+	Layout = "~/Views/Shared/_Login1.cshtml";
+
+}
+<div class="container">
+	<input type="checkbox" id="flip">
+	<div class="cover">
+		<div class="front">
+			<img src="/assets/img/frontImg.jpg" alt="">
+			<div class="text">
+				<span class="text-1">Every new friend is a <br> new adventure</span>
+				<span class="text-2">Let's get connected</span>
+			</div>
+		</div>
+		<div class="back">
+			<img src="/assets/img/news-1.jpg" alt="">
+
+			<div class="text">
+				<span class="text-1">Complete miles of journey <br> with one step</span>
+				<span class="text-2">Let's get started</span>
+			</div>
+		</div>
+	</div>
+	<div class="forms">
+		<div class="form-content">
+			<div class="login-form">
+				<div class="title">Login</div>
+				@if (ViewData["LoginError"] == null)
+				{
+					<div class="text-danger">
+						@ViewData["LoginError"]
+					</div>
+				}
+				@{
+					await Html.RenderPartialAsync("~/Views/Account/Shared/_login.cshtml", Model.LoginModel);
+				}
+			</div>
+			<div class="signup-form">
+				<div class="title">Signup</div>
+				@{
+					await Html.RenderPartialAsync("~/Views/Account/Shared/_Register.cshtml", Model.RegisterModel);
+				}
+
+
+			</div>
+		</div>
+	</div>
+</div>
+
+@section Scripts{
+	@{
+		await Html.RenderPartialAsync("_ValidationScriptsPartial");
+	}
+
+	<script>
+
+
+		$(document).ready(function () {
+			$('input#flip').click(function () {
+				$('form')[0].reset();
+				$('form')[1].reset();
+			})
+
+			//$('form .button input').click(function () {
+			//	$('form .input-box input').each(function () {
+			//		if ($(this).hasClass('input-validation-error')) {
+			//			$(this).addClass('error');
+			//			$(this).parent().find('i').addClass('error');
+			//		} else {
+			//			$(this).removeClass('error');
+			//			$(this).parent().find('i').removeClass('error');
+
+			//		}
+			//	})
+			//	console.log("Called")
+
+			//})
+
+		})
+
+	</script>
+}

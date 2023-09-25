@@ -1,0 +1,52 @@
+﻿@using System.Data;
+@model DataTable;
+@{
+	int i = 1;
+}
+<table class="table table-striped">
+	<thead>
+		<tr>
+			<th>Sr no.</th>
+			@*<th>Country ID</th>*@
+			<th>Country Name</th>
+			<th>Country Code</th>
+			<th class="text-center">Created</th>
+			<th class="text-center">Modified</th>
+			<th class="text-center">Action</th>
+		</tr>
+	</thead>
+	<tbody>
+		@if (Model.Rows.Count > 0)
+		{
+			@foreach (DataRow dataRow in Model.Rows)
+			{
+				<tr>
+					<th>@i</th>
+					@*<td>@dataRow["CountryID"]</td>*@
+					<td>@dataRow["CountryName"]</td>
+					<td>@dataRow["CountryCode"]</td>
+					<td class="text-center">@Convert.ToDateTime(dataRow["Created"]).ToString("dd-MM-yyyy HH:MM")</td>
+					<td class="text-center">@Convert.ToDateTime(dataRow["Modified"]).ToString("dd-MM-yyyy HH:MM")</td>
+					<td class="text-center d-flex justify-content-center align-items-center gap-3">
+						<a class="text-success" asp-controller="LOC_Country" asp-area="LOC_Country" asp-action="AddEdit" asp-route-CountryId="@Convert.ToInt32(dataRow["CountryID"])">
+							<i class="bi bi-pencil-fill"></i>
+						</a>
+
+						<a class="text-danger" asp-controller="LOC_Country" asp-area="LOC_Country" asp-action="DeleteCountry" asp-route-CountryID="@Convert.ToInt32(dataRow["CountryID"])">
+							<i class="bi bi-trash3-fill"></i>
+						</a>
+					</td>
+				</tr>
+				i++;
+
+			}
+		}
+		else
+		{
+			<tr class="text-center">
+				<td colspan="6"> No Country Found</td>
+			</tr>
+		}
+
+	</tbody>
+</table>

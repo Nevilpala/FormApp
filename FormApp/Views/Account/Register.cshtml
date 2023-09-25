@@ -1,0 +1,70 @@
+﻿@model RegisterModel;
+@{
+	ViewData["Title"] = "Login";
+	Layout = "~/Views/Shared/_Login.cshtml";
+
+}
+
+
+<div class="container d-flex align-items-center justify-content-center ">
+	<div class="login-box p-5">
+		<div class="login-key text-center"><i class="bi bi-key"></i></div>
+
+		<h2 class="text-center display-4 fw-bold">Register</h2>
+		<hr />
+		@if (ViewData["ErrorMessage"] != null)
+		{
+			<div class="text-danger">
+				@ViewData["ErrorMessage"]
+			</div>
+		}
+		<form method="post" asp-action="RegisterSave" asp-controller="Account">
+			<div class="mt-2">
+				<label class="form-control-label" asp-for="Username">Username:</label>
+				<input id="Username" asp-for="Username" class="form-control ps-2" required />
+				<span asp-validation-for="Username" class="text-danger"></span>
+			</div>
+			<div class="mt-2">
+				<label class="form-control-label" asp-for="Password">Password:</label>
+				<input id="Password" asp-for="Password" type="password" class="form-control ps-2" placeholder="Enter Password" required />
+				<span asp-validation-for="Password" class="text-danger"></span>
+			</div>
+
+			<div class="mt-2">
+				<label class="form-control-label" asp-for="ConfirmPassword">Confirm Password:</label>
+				<input id="Password" asp-for="ConfirmPassword" type="password" placeholder="Enter Confirm Password" class="form-control ps-2" required />
+				<span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+			</div>
+			<div class="mt-3">
+				<button id="loginBtnSubmit" type="submit" class="btn1 btn-primary w-100">Register</button>
+			</div>
+			<div class="mt-3">
+				<p class="text-sm text-center">Already have Account?  <a href="/Login">Login</a></p>
+				@*<p class="text-sm text-center">Login as <a asp-action="Guest" asp-controller="Account">Guest</a></p>*@
+			</div>
+		</form>
+	</div>
+</div>
+
+
+
+@section Scripts{
+	@{
+		await Html.RenderPartialAsync("_ValidationScriptsPartial");
+	}
+	<script>
+		$(document).ready(function () {
+			var name = $("#Username").val() == null ? "" : $("#Username").val();
+			var pass = $("#Password").val() == null ? "" : $("#Password").val();
+			console.log(name)
+			console.log(pass)
+
+			//if (name != "" && pass != "") {
+			//	$("#loginBtnSubmit").click();
+			//	console.log("LOGIN")
+			//}
+			//DeleteConfirm();
+
+		});
+	</script>
+	}
