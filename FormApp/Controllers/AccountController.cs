@@ -10,8 +10,8 @@ namespace FormApp.Controllers
 {
 	public class AccountController : Controller
 	{
-
-		private const string SessionKeyUsername = "Username";
+        #region Configuration
+        private const string SessionKeyUsername = "Username";
 		private const string SessionKeyUserID = "UserID";
 		//private const string LoginPage = "login1";
 		private const string LoginPage = "Login";
@@ -22,8 +22,10 @@ namespace FormApp.Controllers
 		{
 			ConnectionString = _configuration;
 		}
+        #endregion
 
-		[Route("/Login")]
+        #region Login
+        [Route("/Login")]
 		public IActionResult Login()
 		{
 			var model = new ViewLoginRegisterModel();
@@ -31,8 +33,11 @@ namespace FormApp.Controllers
 			model.RegisterModel = new RegisterModel();
 			return View(LoginPage);
 		}
+        #endregion
 
-		[Route("/Login")]
+        #region LoginSave
+
+        [Route("/Login")]
 		[HttpPost]
 		public IActionResult LoginSave(LoginModel model)
 		{
@@ -64,8 +69,10 @@ namespace FormApp.Controllers
 			//return View("Login", LoginPage == "login1" ? vmodel : model);
 			return View("Login", model);
 		}
+        #endregion
 
-		public IActionResult Register()
+        #region Register
+        public IActionResult Register()
 		{
 			//	//var vmodel = new ViewLoginRegisterModel();
 			//	//vmodel.LoginModel = new LoginModel();
@@ -73,7 +80,10 @@ namespace FormApp.Controllers
 			//	//return View(LoginPage);
 			return View();
 		}
-		public IActionResult RegisterSave(RegisterModel model)
+        #endregion
+
+        #region RegisterSave
+        public IActionResult RegisterSave(RegisterModel model)
 		{
 			
 			if (IsValidUsername(model.Username))
@@ -124,20 +134,27 @@ namespace FormApp.Controllers
 			return View("Register",model);
 
 		}
-		public IActionResult Logout()
+        #endregion
+
+        #region Logout
+        public IActionResult Logout()
 		{
 			HttpContext.Session.Clear();
 			return RedirectToAction("Login", "Account");
 		}
+        #endregion
 
-		public IActionResult Guest()
+        #region Guest
+        public IActionResult Guest()
 		{
 			HttpContext.Session.Clear();
 			HttpContext.Session.SetInt32("Guest", 1);
 			return RedirectToAction("Index", "Home");
 		}
+        #endregion
 
-		private bool IsValidUsername(string username)
+        #region IsValidUsername
+        private bool IsValidUsername(string username)
 		{
 			string connectionStr = ConnectionString.GetConnectionString("sql");
 			SqlConnection conn1 = new SqlConnection(connectionStr);
@@ -158,8 +175,10 @@ namespace FormApp.Controllers
 
 
 		}
+        #endregion
 
-		private bool IsValidUser(string username, string password)
+        #region IsValidUser
+        private bool IsValidUser(string username, string password)
 		{
 			string connectionStr = ConnectionString.GetConnectionString("sql");
 			SqlConnection conn1 = new SqlConnection(connectionStr);
@@ -188,6 +207,14 @@ namespace FormApp.Controllers
 			return false;
 
 		}
+        #endregion
 
-	}
+
+        #region ManageUser
+		public IActionResult ManageUser()
+		{
+			return View();
+		}
+        #endregion
+    }
 }
