@@ -5,6 +5,7 @@ using System.Data.SqlClient;
 using System.Data;
 using Microsoft.AspNetCore.Http;
 using System.Reflection;
+using System.Net.Mail;
 
 namespace FormApp.Controllers
 {
@@ -207,10 +208,49 @@ namespace FormApp.Controllers
 			return false;
 
 		}
-        #endregion
+		#endregion
 
+		#region ForgotPassword
+		public IActionResult ForgotPassword()
+		{
+			Random rnd = new Random();
+			int otp = rnd.Next(1000, 9999);
+			ViewData["msgotp"] = otp;
+			string msg = "your otp from abc.com is " + otp;
+			bool f = SendOTP("nevilpala4@gmail.com", "nevilpala5@gmail.com", "Subjected to OTP", msg);
+			if (f) {
+				Console.WriteLine("otp sent successfully"); 
+			}
+			else {
+				Console.WriteLine("otp not sent"); 
+			}
+			return View("ForgotPassword");
+		}
 
-        #region ManageUser
+		public bool SendOTP(string from, string to, string subject, string body)
+		{
+			bool f = false;
+			try
+			{
+				MailMessage mailMessage = new MailMessage();
+				mailMessage.To.Add(to);
+				mailMessage.From = new MailAddress(from);
+				mailMessage.Subject = subject;
+				mailMessage.Body = body;
+				SmtpClient smtpClient = new SmtpClient("smtp.gmail.com");
+				smtpClient.Send(mailMessage);
+				f = true;
+			}	
+			catch (Exception ex)
+			{
+				f = false;
+			}
+			return f;
+		}
+
+		#endregion
+
+		#region ManageUser
 		public IActionResult ManageUser()
 		{
 			return View();
