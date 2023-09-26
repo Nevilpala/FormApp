@@ -6,13 +6,15 @@ using System.Data;
 using Microsoft.AspNetCore.Http;
 using System.Reflection;
 using System.Net.Mail;
+using System.Net;
+using System.Text;
 
 namespace FormApp.Controllers
 {
 	public class AccountController : Controller
 	{
-        #region Configuration
-        private const string SessionKeyUsername = "Username";
+		#region Configuration
+		private const string SessionKeyUsername = "Username";
 		private const string SessionKeyUserID = "UserID";
 		//private const string LoginPage = "login1";
 		private const string LoginPage = "Login";
@@ -23,10 +25,10 @@ namespace FormApp.Controllers
 		{
 			ConnectionString = _configuration;
 		}
-        #endregion
+		#endregion
 
-        #region Login
-        [Route("/Login")]
+		#region Login
+		[Route("/Login")]
 		public IActionResult Login()
 		{
 			var model = new ViewLoginRegisterModel();
@@ -34,11 +36,11 @@ namespace FormApp.Controllers
 			model.RegisterModel = new RegisterModel();
 			return View(LoginPage);
 		}
-        #endregion
+		#endregion
 
-        #region LoginSave
+		#region LoginSave
 
-        [Route("/Login")]
+		[Route("/Login")]
 		[HttpPost]
 		public IActionResult LoginSave(LoginModel model)
 		{
@@ -70,29 +72,39 @@ namespace FormApp.Controllers
 			//return View("Login", LoginPage == "login1" ? vmodel : model);
 			return View("Login", model);
 		}
-        #endregion
+		#endregion
 
-        #region Register
-        public IActionResult Register()
+		#region Register
+		public IActionResult Register()
 		{
 			//	//var vmodel = new ViewLoginRegisterModel();
 			//	//vmodel.LoginModel = new LoginModel();
 			//	//vmodel.RegisterModel = new RegisterModel();
 			//	//return View(LoginPage);
+
+			HttpContext.Session.SetString("OtpDateTime", DateTime.Now.ToString());
+
+			DateTime dt = Convert.ToDateTime(HttpContext.Session.GetString("OtpDateTime"));
+			TimeSpan ts = DateTime.Now - dt;
+			Console.WriteLine(ts.TotalSeconds > 1);
 			return View();
 		}
-        #endregion
+		#endregion
 
-        #region RegisterSave
-        public IActionResult RegisterSave(RegisterModel model)
+		#region RegisterSave
+		public IActionResult RegisterSave(RegisterModel model)
 		{
-			
+
 			if (IsValidUsername(model.Username))
 			{
 				ModelState.AddModelError("Username", "Username Already Exist");
 			}
 			else
 			{
+				//UserModel userModel = new UserModel();
+				//userModel.Username = model.Username;
+				//userModel.Email = model.Email;
+				//RedirectToAction("ForgotPassword", model);
 				if (ModelState.IsValid)
 				{
 					string connectionStr = ConnectionString.GetConnectionString("sql");
@@ -115,9 +127,11 @@ namespace FormApp.Controllers
 					}
 					else
 					{
+						Console.WriteLine(obj);
 						if (IsValidUser(model.Username, model.Password))
 						{
 							return RedirectToAction("Index", "Home");
+
 
 						}
 
@@ -132,30 +146,30 @@ namespace FormApp.Controllers
 			}
 			//var vmodel = new ViewLoginRegisterModel { RegisterModel = model };
 			//return View( LoginPage,LoginPage == "login1" ? vmodel : model);
-			return View("Register",model);
+			return View("Register", model);
 
 		}
-        #endregion
+		#endregion
 
-        #region Logout
-        public IActionResult Logout()
+		#region Logout
+		public IActionResult Logout()
 		{
 			HttpContext.Session.Clear();
 			return RedirectToAction("Login", "Account");
 		}
-        #endregion
+		#endregion
 
-        #region Guest
-        public IActionResult Guest()
+		#region Guest
+		public IActionResult Guest()
 		{
 			HttpContext.Session.Clear();
 			HttpContext.Session.SetInt32("Guest", 1);
 			return RedirectToAction("Index", "Home");
 		}
-        #endregion
+		#endregion
 
-        #region IsValidUsername
-        private bool IsValidUsername(string username)
+		#region IsValidUsername
+		private bool IsValidUsername(string username)
 		{
 			string connectionStr = ConnectionString.GetConnectionString("sql");
 			SqlConnection conn1 = new SqlConnection(connectionStr);
@@ -167,19 +181,16 @@ namespace FormApp.Controllers
 			SqlDataReader rdr = cmd.ExecuteReader();
 			if (rdr.HasRows)
 			{
-
 				return true;
 			}
 			conn1.Close();
 			return false;
 
-
-
 		}
-        #endregion
+		#endregion
 
-        #region IsValidUser
-        private bool IsValidUser(string username, string password)
+		#region IsValidUser
+		private bool IsValidUser(string username, string password)
 		{
 			string connectionStr = ConnectionString.GetConnectionString("sql");
 			SqlConnection conn1 = new SqlConnection(connectionStr);
@@ -199,6 +210,7 @@ namespace FormApp.Controllers
 				{
 					HttpContext.Session.SetInt32(SessionKeyUserID, Convert.ToInt32(rdr["UserID"]));
 					HttpContext.Session.SetString(SessionKeyUsername, rdr["Username"].ToString());
+					HttpContext.Session.SetString("UserEmail", rdr["Email"].ToString());
 				}
 				conn1.Close();
 				return true;
@@ -211,41 +223,96 @@ namespace FormApp.Controllers
 		#endregion
 
 		#region ForgotPassword
-		public IActionResult ForgotPassword()
+		public IActionResult ForgotPassword(UserModel model)
 		{
-			Random rnd = new Random();
-			int otp = rnd.Next(1000, 9999);
-			ViewData["msgotp"] = otp;
-			string msg = "your otp from abc.com is " + otp;
-			bool f = SendOTP("nevilpala4@gmail.com", "nevilpala5@gmail.com", "Subjected to OTP", msg);
-			if (f) {
-				Console.WriteLine("otp sent successfully"); 
-			}
-			else {
-				Console.WriteLine("otp not sent"); 
-			}
+			
 			return View("ForgotPassword");
 		}
+		
+		public void GenrateOTP(string email)
+		{
+			DateTime dt = Convert.ToDateTime(HttpContext.Session.GetString("OtpDateTime"));
+			TimeSpan ts = DateTime.Now - dt;
+			Console.WriteLine(ts.TotalSeconds > 1);
 
-		public bool SendOTP(string from, string to, string subject, string body)
+			try{
+				MailAddress m = new MailAddress(email);
+				Console.WriteLine("Valid Mail");
+
+
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine(ex.Message);
+			}
+			return;
+			if (HttpContext.Session.GetInt32("Otp") != null) {
+				bool f = false;
+				email ??= "nevilpala5@gmail.com";
+				Random rnd = new Random();
+				int otp = rnd.Next(1000, 9999);
+				HttpContext.Session.SetInt32("Otp", otp);
+				string time = DateTime.Now.ToString();
+				HttpContext.Session.SetString("OtpDateTime", time);
+				ViewData["msgotp"] = otp;
+				Console.WriteLine("OTP : " + otp);
+				string msg = "Your OTP from Address Book is " + otp;
+				f = SendOTP(email, "Subjected to OTP", msg);
+				if (f)
+				{
+					Console.WriteLine($"=====      otp sent successfully to {email}      ======");
+				}
+				else
+				{
+					Console.WriteLine("otp not sent");
+				}
+			}
+			
+		}
+		private bool SendOTP(string to, string subject, string body)
 		{
 			bool f = false;
+			string from = "addressbook.noreply@gmail.com";
+			string pass = "offo jxyn bbac sfxf";
 			try
 			{
-				MailMessage mailMessage = new MailMessage();
-				mailMessage.To.Add(to);
-				mailMessage.From = new MailAddress(from);
-				mailMessage.Subject = subject;
-				mailMessage.Body = body;
-				SmtpClient smtpClient = new SmtpClient("smtp.gmail.com");
-				smtpClient.Send(mailMessage);
+
+				using (MailMessage mm = new MailMessage(from, to))
+				{
+					mm.Subject = subject;
+					mm.Body = body;
+
+					mm.IsBodyHtml = true;
+					using (SmtpClient smtp = new SmtpClient())
+					{
+						smtp.Host = "smtp.gmail.com";
+						smtp.EnableSsl = true;
+						NetworkCredential NetworkCred = new NetworkCredential(from, pass);
+						smtp.UseDefaultCredentials = false;
+						smtp.Credentials = NetworkCred;
+						smtp.Port = 587;
+						smtp.Send(mm);
+						TempData["mailmessege"] = "Successfully mail sended to " + to;
+					}
+				}
+
+
 				f = true;
-			}	
+			}
 			catch (Exception ex)
 			{
 				f = false;
+				//Console.WriteLine(ex.ToString());
+				Console.WriteLine(ex.Message);
 			}
 			return f;
+		}
+
+		private bool OtpCheck()
+		{
+			bool check = true;
+
+			return check;
 		}
 
 		#endregion
@@ -255,6 +322,6 @@ namespace FormApp.Controllers
 		{
 			return View();
 		}
-        #endregion
-    }
+		#endregion
+	}
 }

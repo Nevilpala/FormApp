@@ -6,11 +6,21 @@ namespace FormApp.Models
 {
 	public class ViewLoginRegisterModel
 	{
-		public LoginModel LoginModel { get; set; } 
+		public LoginModel LoginModel { get; set; }
 
 		public RegisterModel RegisterModel { get; set; } 
 	}
-    public class LoginModel
+
+	public class UserModel {
+
+		public int? UserID { get; set; }
+		public string Username { get; set; }
+
+		public string Email { get; set; }
+
+	}
+
+	public class LoginModel
     {
 		[Required(ErrorMessage = "Username is required.")]
 		public string Username { get; set; }
@@ -18,6 +28,15 @@ namespace FormApp.Models
 
 		[Required(ErrorMessage = "Password is required.")]
 		public string Password { get; set; }
+
+
+		//public string? Email { get; set; }
+
+
+
+
+
+
 	}
 	public class RegisterModel 
 	{
@@ -31,9 +50,18 @@ namespace FormApp.Models
 
 		[Required(ErrorMessage = "Confirm Password is required.")]
 		[Compare("Password", ErrorMessage = "Password does not match.")]
-		public string? ConfirmPassword { get; set; }
+		public string ConfirmPassword { get; set; } 
 
+
+		[Required(ErrorMessage = "Email Address is required.")]
+		public string Email { get; set; } = string.Empty;
+
+		[Required(ErrorMessage ="Otp is required.")]
+		[StringLength(4,ErrorMessage ="4 digit is needed",MinimumLength =4)]
 		
-		public string? Email { get; set; } = string.Empty;
+		public int OTP { get; set; }
+				
+
+
 	}
 }
