@@ -59,7 +59,7 @@ namespace FormApp.Models
 		[Required(ErrorMessage ="Otp is required.")]
 		[StringLength(4,ErrorMessage ="4 digit is needed",MinimumLength =4)]
 		
-		public int OTP { get; set; }
+		public int? OTP { get; set; }
 				
 
 

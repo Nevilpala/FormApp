@@ -74,14 +74,9 @@ namespace FormApp.Controllers
 		}
 		#endregion
 
-		#region Register
+		#region Registers
 		public IActionResult Register()
 		{
-			//	//var vmodel = new ViewLoginRegisterModel();
-			//	//vmodel.LoginModel = new LoginModel();
-			//	//vmodel.RegisterModel = new RegisterModel();
-			//	//return View(LoginPage);
-
 			HttpContext.Session.SetString("OtpDateTime", DateTime.Now.ToString());
 
 			DateTime dt = Convert.ToDateTime(HttpContext.Session.GetString("OtpDateTime"));
@@ -94,56 +89,58 @@ namespace FormApp.Controllers
 		#region RegisterSave
 		public IActionResult RegisterSave(RegisterModel model)
 		{
+			DateTime dt = Convert.ToDateTime(HttpContext.Session.GetString("OtpDateTime"));
+			TimeSpan ts = DateTime.Now - dt;
+			int second = Convert.ToInt32(ts.TotalSeconds);
 
 			if (IsValidUsername(model.Username))
 			{
 				ModelState.AddModelError("Username", "Username Already Exist");
 			}
-			else
+
+			if (second > 60)
 			{
-				//UserModel userModel = new UserModel();
-				//userModel.Username = model.Username;
-				//userModel.Email = model.Email;
-				//RedirectToAction("ForgotPassword", model);
-				if (ModelState.IsValid)
+				ModelState.AddModelError("OTP", "OTP Expire, Genrate new OTP");
+
+			}
+
+			if (ModelState.IsValid)
+			{
+				string connectionStr = ConnectionString.GetConnectionString("sql");
+				SqlConnection conn1 = new SqlConnection(connectionStr);
+				conn1.Open();
+				SqlCommand cmd = conn1.CreateCommand();
+				cmd.CommandType = CommandType.StoredProcedure;
+				cmd.CommandText = "PR_Login_Insert";
+				cmd.Parameters.AddWithValue("@Username", model.Username);
+				cmd.Parameters.AddWithValue("@Password", model.Password);
+				cmd.Parameters.AddWithValue("@Email", model.Email);
+				int obj = Convert.ToInt32(cmd.ExecuteNonQuery());
+				if (obj == 0)
 				{
-					string connectionStr = ConnectionString.GetConnectionString("sql");
-					SqlConnection conn1 = new SqlConnection(connectionStr);
-					conn1.Open();
-					SqlCommand cmd = conn1.CreateCommand();
-					cmd.CommandType = CommandType.StoredProcedure;
-					cmd.CommandText = "PR_Login_Insert";
-					cmd.Parameters.AddWithValue("@Username", model.Username);
-					cmd.Parameters.AddWithValue("@Password", model.Password);
-					cmd.Parameters.AddWithValue("@Email", model.Email);
-					int obj = Convert.ToInt32(cmd.ExecuteNonQuery());
-					if (obj == 0)
-					{
-						ViewData["RegisterError"] = "Register Failed";
-						ViewData["ErrorMessage"] = "Register Failed";
+					ViewData["RegisterError"] = "Register Failed";
+					ViewData["ErrorMessage"] = "Register Failed";
 
-						ModelState.AddModelError("", "Register User Failed");
-
-					}
-					else
-					{
-						Console.WriteLine(obj);
-						if (IsValidUser(model.Username, model.Password))
-						{
-							return RedirectToAction("Index", "Home");
-
-
-						}
-
-					}
+					ModelState.AddModelError("", "Register User Failed");
 
 				}
 				else
 				{
-					ViewData["RegisterError"] = "Invalid Model";
-					ViewData["ErrorMessage"] = "Invalid Model";
+					Console.WriteLine(obj);
+					if (IsValidUser(model.Username, model.Password))
+					{
+						return RedirectToAction("Index", "Home");
+					}
+
 				}
+
 			}
+			else
+			{
+				ViewData["RegisterError"] = "Invalid Model";
+				ViewData["ErrorMessage"] = "Invalid Model";
+			}
+
 			//var vmodel = new ViewLoginRegisterModel { RegisterModel = model };
 			//return View( LoginPage,LoginPage == "login1" ? vmodel : model);
 			return View("Register", model);
@@ -225,49 +222,64 @@ namespace FormApp.Controllers
 		#region ForgotPassword
 		public IActionResult ForgotPassword(UserModel model)
 		{
-			
+
 			return View("ForgotPassword");
 		}
-		
-		public void GenrateOTP(string email)
+
+		public bool GenrateOTP(RegisterModel model)
 		{
-			DateTime dt = Convert.ToDateTime(HttpContext.Session.GetString("OtpDateTime"));
-			TimeSpan ts = DateTime.Now - dt;
-			Console.WriteLine(ts.TotalSeconds > 1);
-
-			try{
-				MailAddress m = new MailAddress(email);
-				Console.WriteLine("Valid Mail");
-
-
-			}
-			catch (Exception ex)
+			string email = model.Email;
+			bool temp = true;
+			if (model.Username == null)
 			{
-				Console.WriteLine(ex.Message);
+				ModelState.AddModelError("Username", "Username is required.");
+				temp = false;
 			}
-			return;
-			if (HttpContext.Session.GetInt32("Otp") != null) {
-				bool f = false;
-				email ??= "nevilpala5@gmail.com";
-				Random rnd = new Random();
-				int otp = rnd.Next(1000, 9999);
-				HttpContext.Session.SetInt32("Otp", otp);
-				string time = DateTime.Now.ToString();
-				HttpContext.Session.SetString("OtpDateTime", time);
-				ViewData["msgotp"] = otp;
-				Console.WriteLine("OTP : " + otp);
-				string msg = "Your OTP from Address Book is " + otp;
-				f = SendOTP(email, "Subjected to OTP", msg);
-				if (f)
+			if (model.Password == null)
+			{
+				ModelState.AddModelError("Password", "Username is required.");
+				temp = false;
+
+			}
+			if (model.ConfirmPassword != model.Password)
+			{
+				ModelState.AddModelError("ConfirmPassword", "Confirm Password does not Match");
+				temp = false;
+
+			}
+
+			if (temp)
+			{
+				DateTime dt = Convert.ToDateTime(HttpContext.Session.GetString("OtpDateTime"));
+				TimeSpan ts = DateTime.Now - dt;
+				Console.WriteLine(ts.TotalSeconds > 1);
+				if (HttpContext.Session.GetInt32("Otp") != null)
 				{
-					Console.WriteLine($"=====      otp sent successfully to {email}      ======");
-				}
-				else
-				{
-					Console.WriteLine("otp not sent");
+					bool f = false;
+					email ??= "nevilpala5@gmail.com";
+					Random rnd = new Random();
+					int otp = rnd.Next(1000, 9999);
+					HttpContext.Session.SetInt32("Otp", otp);
+					string time = DateTime.Now.ToString();
+					HttpContext.Session.SetString("OtpDateTime", time);
+					ViewData["msgotp"] = otp;
+					Console.WriteLine("OTP : " + otp);
+					string msg = "Your OTP from Address Book is " + otp;
+					f = SendOTP(email, "Subjected to OTP", msg);
+					if (f)
+					{
+						Console.WriteLine($"=====      OTP sent successfully to {email}      ======");
+					}
+					else
+					{
+						Console.WriteLine("otp not sent");
+					}
+					return f;
+
 				}
 			}
-			
+
+			return false;
 		}
 		private bool SendOTP(string to, string subject, string body)
 		{
