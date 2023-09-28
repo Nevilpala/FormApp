@@ -21,7 +21,7 @@ namespace FormApp.Models
 	}
 
 	public class LoginModel
-    {
+	{
 		[Required(ErrorMessage = "Username is required.")]
 		public string Username { get; set; }
 
@@ -30,13 +30,15 @@ namespace FormApp.Models
 		public string Password { get; set; }
 
 
-		//public string? Email { get; set; }
 
+	}
+	public class ForgotModel
+	{
+		public string Username { get; set; }
 
+		public string Email { get; set; }
 
-
-
-
+		public string Password { get; set; }
 	}
 	public class RegisterModel 
 	{
@@ -56,12 +58,7 @@ namespace FormApp.Models
 		[Required(ErrorMessage = "Email Address is required.")]
 		public string Email { get; set; } = string.Empty;
 
-		[Required(ErrorMessage ="Otp is required.")]
-		[StringLength(4,ErrorMessage ="4 digit is needed",MinimumLength =4)]
-		
 		public int? OTP { get; set; }
-				
-
 
 	}
 }

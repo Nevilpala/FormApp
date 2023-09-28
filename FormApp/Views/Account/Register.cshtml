@@ -1,8 +1,7 @@
 ﻿@model RegisterModel;
 @{
-	ViewData["Title"] = "Login";
+	ViewData["Title"] = "Register";
 	Layout = "~/Views/Shared/_Login.cshtml";
-
 }
 
 <style>
@@ -19,30 +18,32 @@
 </style>
 <div class="container d-flex align-items-center justify-content-center ">
 	<div class="login-box p-5">
-		
-		<form method="post" asp-action="RegisterSave" asp-controller="Account">
-			<div class="login-key text-center"><i class="bi bi-key"></i></div>
+		<div class="login-key text-center"><i class="bi bi-key"></i></div>
 
-			<h2 class="text-center display-4 fw-bold">Register</h2>
-			<hr />
-			@if (ViewData["ErrorMessage"] != null)
-			{
-				<div class="text-danger">
-					@ViewData["ErrorMessage"]
-				</div>
-			}
-			<div  class="mt-2 input-register">
+		<h2 class="text-center display-4 fw-bold">Register</h2>
+		<hr />
+		@if (ViewData["ErrorMessage"] != null)
+		{
+			<div class="text-danger">
+				@ViewData["ErrorMessage"]
+			</div>
+		}
+
+		<form method="post" asp-action="RegisterSave" asp-controller="Account">
+			@Html.ValidationSummary(true)
+
+			<div class="mt-2">
 				<label class="form-control-label" asp-for="Username">Username:</label>
 				<input id="Username" asp-for="Username" class="form-control ps-2" required />
 				<span asp-validation-for="Username" class="text-danger"></span>
 			</div>
-			<div class="mt-2 input-register">
+			<div class="mt-2">
 				<label class="form-control-label" asp-for="Password">Password:</label>
 				<input id="Password" asp-for="Password" type="password" class="form-control ps-2" placeholder="Enter Password" required />
 				<span asp-validation-for="Password" class="text-danger"></span>
 			</div>
 
-			<div class="mt-2 input-register">
+			<div class="mt-2">
 				<label class="form-control-label" asp-for="ConfirmPassword">Confirm Password:</label>
 				<input id="Password" asp-for="ConfirmPassword" type="password" placeholder="Enter Confirm Password" class="form-control ps-2" required />
 				<span asp-validation-for="ConfirmPassword" class="text-danger"></span>
@@ -53,33 +54,35 @@
 				<input id="Email" asp-for="Email" type="text" class="form-control ps-2" required />
 				<span asp-validation-for="Email" class="text-danger"></span>
 			</div>
-			@*<div class="mt-3 input-register">
-				<button type="button" id="otpbtn" class="btn rounded-0 btn-secondary w-50">Send Otp</button>
-				@*<a asp-action="GenrateOTP"asp-controller="Account" id="Aotpbtn" class="btn rounded-0 btn-secondary w-50">Send Otp</a>
-			</div>*@
-			<div  class="otp-input">
+		
+			<div class="mt-3 register-input">
+				<button type="button" id="otpbtn" class="btn1 btn-secondary w-100">Send Otp</button>
+			</div>
+			<button type="button" id="otpbtnresend"   class="btn btn-sm text-primary otp-input">Resend Otp</button>
+
+			<div class="mt-2 otp-input">
 
 				<label class="form-control-label" asp-for="OTP">OTP:</label>
-				<input id="otp" asp-for="OTP" type="number" onKeyPress="if(this.value.length==4) return false;" class="form-control ps-2" onwheel="return false;" />
+				<input id="otp" asp-for="OTP" type="number" otp-error="@ViewData["otpError"]" onKeyPress="if(this.value.length==4) return false;" class="form-control ps-2" />
 				<span asp-validation-for="OTP" class="text-danger"></span>
 			</div>
 
+			<div class="mt-3 otp-input">
+				<button type="submit" class="btn1 w-100">Register</button>
+			</div>
 
 			<div class="mt-3 input-register">
-				<button id="otpbtn" type="button" class="btn1 btn-primary w-100">Send OTP</button>
-			</div>
 
-			<div class="mt-3 otp-input">
-				<button id="otpbtn" type="button" class="btn1 btn-primary w-100">Verify OTP</button>
-			</div>
-			<div class="mt-3 otp-input">
 				<p class="text-sm text-center">Already have Account?  <a href="/Login">Login</a></p>
 				@*<p class="text-sm text-center">Login as <a asp-action="Guest" asp-controller="Account">Guest</a></p>*@
-				<button id="back" type="button" class="btn d-flex align-items-center text-light">
-					<i class="bi bi-arrow-left-short" ></i> <span>Back</span>
-				</button>
+				@*<button id="back" type="button" class="btn d-flex align-items-center text-light">
+					<i class="bi bi-arrow-left-short"></i> <span>Back</span>
+				</button>*@
 			</div>
 		</form>
+
+
+
 	</div>
 </div>
 
@@ -90,36 +93,62 @@
 		await Html.RenderPartialAsync("_ValidationScriptsPartial");
 	}
 	<script>
+		$('.otp-input').addClass('d-none');
+		$('.register-input').removeClass('d-none');
+		$('#loginBtnSubmit').attr('disabled', true);
+
 		$(document).ready(function () {
-			$('.otp-input').addClass('d-none');
 
 			var name = $("#Username").val() == null ? "" : $("#Username").val();
 			var pass = $("#Password").val() == null ? "" : $("#Password").val();
+			var IsOtp = $("#otp").attr("otp-error");
 			console.log(name)
 			console.log(pass)
+			console.log("EROR : ")
+
+			if (IsOtp!=null && IsOtp) {
+				$('#loginBtnSubmit').attr('disabled', false);
+				$('.register-input').addClass('d-none');
+				$('.otp-input').removeClass('d-none');
+			}
 		});
-		$('#back').click(function(){
-			$('.input-register').removeClass('d-none');
-			$('.otp-input').addClass('d-none');
-		})
-		$('#otpbtn').click(function () {
+		//$('#back').click(function () {
+		//	$('.register-input').removeClass('d-none');
+			//$('.otp-input').addClass('d-none');
+		//})
+
+
+		$('#otpbtn,#otpbtnresend').click(function () {
+
+			var Resend = false;
+			if ($(this).attr("id") == "otpbtnresend"){
+				Resend = true;
+			}
+			
 			var Email = $('#Email').val();
 			console.log(Email);
-			$('.otp-input').removeClass('d-none');
-			$('.input-register').addClass('d-none');
-			return;
-			if (Email == null && Email == "") {
-				$('.otp-input').removeClass('d-none');
+			if (Email != null && Email != "") {
 				$('.input-register').addClass('d-none');
 				$.ajax({
-					url: "@Url.Action("GenrateOTP","Account")" + "?&model="+model,
+					url: "@Url.Action("GenrateOTP","Account")" + "?&email=" + Email + (Resend?+"&Resend="+Resend:""),
 					type: "POST",
 					data: {},
 					success: function (data) {
-						$('#loginBtnSubmit').attr('disabled', false);
+						console.error(data);
 
+						if (data) {
+							$('#loginBtnSubmit').attr('disabled', false);
+							$('.register-input').addClass('d-none');
+							$('.otp-input').removeClass('d-none');
+
+						} else {
+							console.error("OTP NOT SEND");
+							$('.register-input').removeClass('d-none');
+
+						}
 					},
 					error: function (error) {
+
 						console.error(error);
 					}
 				});

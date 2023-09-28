@@ -8,13 +8,11 @@ using System.Diagnostics;
 namespace FormApp.Controllers
 {
     [CheckAccess]
-
 	public class HomeController : Controller
 	{
 		private readonly ILogger<HomeController> _logger;
 
-
-		public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger)
 		{
 			_logger = logger;
 		}
@@ -28,6 +26,14 @@ namespace FormApp.Controllers
 		{
 			return View();
 		}
+
+         
+        [Route("/Error")]
+		[Route("/Error/{id?}")]
+        public IActionResult Error(int statuscode)
+        {
+            return View();        
+        }
 
 	
 	}
