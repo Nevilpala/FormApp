@@ -14,8 +14,9 @@
     {
         username = "Guest";
     }
-    string Title = ViewData["Title"].ToString();
-
+ 
+    string Title = ViewData["Title"].ToString() == null ? "" : ViewData["Title"].ToString();
+  
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -263,7 +264,7 @@
     <script src="~/js/site.js" asp-append-version="true"></script>
     <!-- Template Main JS File -->
     <script src="~/assets/vendor/DataTables/datatables.min.js"></script>
-    <script src="~/assets/js/main.js"></script>
+    <script src="~/assets/js/main.js"></script> 
     <script src="~/js/sweetalert.js"></script>
 
 	@await RenderSectionAsync("Scripts", required: false)

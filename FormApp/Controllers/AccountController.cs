@@ -8,6 +8,9 @@ using System.Reflection;
 using System.Net.Mail;
 using System.Net;
 using System.Text;
+using FormApp.BAL;
+using Humanizer;
+using Unity.Interception.Utilities;
 
 namespace FormApp.Controllers
 {
@@ -16,7 +19,7 @@ namespace FormApp.Controllers
 		#region Configuration
 		private const string SessionKeyUsername = "Username";
 		private const string SessionKeyUserID = "UserID";
-		//private const string LoginPage = "login1";
+
 		private const string LoginPage = "Login";
 
 		private readonly IConfiguration ConnectionString;
@@ -31,9 +34,6 @@ namespace FormApp.Controllers
 		[Route("/Login")]
 		public IActionResult Login()
 		{
-			var model = new ViewLoginRegisterModel();
-			model.LoginModel = new LoginModel();
-			model.RegisterModel = new RegisterModel();
 			return View(LoginPage);
 		}
 		#endregion
@@ -68,8 +68,7 @@ namespace FormApp.Controllers
 
 
 			}
-			//var vmodel = new ViewLoginRegisterModel { LoginModel = model };
-			//return View("Login", LoginPage == "login1" ? vmodel : model);
+
 			return View("Login", model);
 		}
 		#endregion
@@ -122,7 +121,7 @@ namespace FormApp.Controllers
 				cmd.Parameters.AddWithValue("@Password", model.Password);
 				cmd.Parameters.AddWithValue("@Email", model.Email);
 				int obj = Convert.ToInt32(cmd.ExecuteNonQuery());
-				Console.WriteLine("OBJ : "+ obj);
+				Console.WriteLine("OBJ : " + obj);
 
 				if (obj == 0)
 				{
@@ -136,8 +135,7 @@ namespace FormApp.Controllers
 				{
 					if (IsValidUser(model.Username, model.Password))
 					{
-						Console.WriteLine("-> Record Successfully Inserted");
-
+						Console.WriteLine("-> Register Record Successfully Inserted");
 
 						return RedirectToAction("Index", "Home");
 					}
@@ -178,7 +176,7 @@ namespace FormApp.Controllers
 		#endregion
 
 		#region IsValidUsername
-		private bool IsValidUsername(string username,bool sessionStore = false)
+		private bool IsValidUsername(string username, bool sessionStore = false)
 		{
 			string connectionStr = ConnectionString.GetConnectionString("sql");
 			SqlConnection conn1 = new SqlConnection(connectionStr);
@@ -193,7 +191,7 @@ namespace FormApp.Controllers
 				if (sessionStore)
 				{
 					while (rdr.Read())
-					{ 
+					{
 						HttpContext.Session.SetString(SessionKeyUsername, rdr["Username"].ToString());
 						HttpContext.Session.SetString("UserEmail", rdr["Email"].ToString());
 					}
@@ -242,40 +240,111 @@ namespace FormApp.Controllers
 		#endregion
 
 		#region ForgotPassword
-		public IActionResult ForgotPassword(LoginModel model)
+		public IActionResult ForgotPassword([Bind("Username")] IFormCollection fc)
 		{
-			 
-			if (string.IsNullOrEmpty(model.Username))
+
+			Console.WriteLine("USER : " + fc["Username"]);
+			if (string.IsNullOrEmpty(fc["Username"]))
 			{
 
 				ViewData["LoginPage"] = "forgot";
-				ViewData["FormName"] = "Forgot Password"; 
-				return View("Login",model);
+				ViewData["FormName"] = "Forgot Password";
+				ModelState.AddModelError("Username", "Enter Username");
+
+				return View("Login");
 			}
 			else
 			{
 				ViewData["LoginPage"] = "forgot";
 				ViewData["FormName"] = "Forgot Password";
-				if (IsValidUsername(model.Username, true))
+				if (IsValidUsername(fc["Username"], true))
 				{
 
-					return View();
+					bool IsSend = GenrateOTP(HttpContext.Session.GetString("UserEmail"));
+
+					if (IsSend)
+					{
+						return View();
+
+					}
+					else
+					{
+						return View("Login");
+					}
 				}
 				else
 				{
 
 					ModelState.AddModelError("Username", "Username does not exist");
-					return View("Login", model);
+					return View("Login");
 				}
 			}
-			
 
-			//ViewData["LoginPage"] = null;
-			//return View("ForgotPassword");
- 
+
 		}
 
-		public bool GenrateOTP(string email,bool Resend=false)
+		[Route("ResetPassword")]
+
+		public IActionResult OtpVerifyCheck(IFormCollection fc)
+		{
+
+			string otp = fc["1"] + fc["2"] + fc["3"] + fc["4"];
+			if (HttpContext.Session.GetInt32("Otp").ToString() == otp)
+			{
+				ViewData["LoginPage"] = "ResetPassword";
+				ViewData["FormName"] = "Reset Password";
+				return View("Login");
+			}
+			else
+			{
+				ViewData["Error"] = "Please Enter Correct OTP";
+			}
+			return View("ForgotPassword");
+		}
+
+		public IActionResult NewPasswordSet(IFormCollection fc)
+		{
+			ViewData["LoginPage"] = "ResetPassword";
+			ViewData["FormName"] = "Reset Password";
+			string user = HttpContext.Session.GetString(SessionKeyUsername);
+			string newPass = fc["Password"];
+			string conPass = fc["ConfirmPassword"];
+			Console.WriteLine(user);
+			if (newPass == conPass && user != null)
+			{
+				string connectionStr = ConnectionString.GetConnectionString("sql");
+				SqlConnection conn1 = new SqlConnection(connectionStr);
+				conn1.Open();
+				SqlCommand cmd = conn1.CreateCommand();
+				cmd.CommandType = CommandType.StoredProcedure;
+				cmd.CommandText = "PR_Login_ResetPassword";
+				cmd.Parameters.AddWithValue("@Username", user);
+				cmd.Parameters.AddWithValue("@Password", newPass);
+				int obj = Convert.ToInt32(cmd.ExecuteNonQuery());
+
+				if (obj == 0)
+				{
+					ModelState.AddModelError("Password", "Change Password Failed");
+					return View("Login");
+				}
+				else
+				{
+					Console.WriteLine("Correct");
+					HttpContext.Session.Clear();
+					return RedirectToAction("Login");
+
+				}
+
+			}
+			else
+			{
+				Console.WriteLine("Incoorect");
+				ModelState.AddModelError("Password", "Password Does Not Match");
+			}
+			return View("Login");
+		}
+
+		public bool GenrateOTP(string email, bool Resend = false)
 		{
 
 			DateTime dt = Convert.ToDateTime(HttpContext.Session.GetString("OtpDateTime"));
@@ -284,15 +353,19 @@ namespace FormApp.Controllers
 			Console.WriteLine("HttpClient OTP		: " + HttpContext.Session.GetInt32("Otp"));
 			Console.WriteLine("HttpClient DATETIME	: " + HttpContext.Session.GetString("OtpDateTime"));
 			Console.WriteLine("TotalSeconds			: " + ts.TotalSeconds);
-
+			Console.WriteLine("Email				: " + HttpContext.Session.GetString("Email"));
 			Console.WriteLine("======================================================\n");
-			if (HttpContext.Session.GetInt32("Otp") != null && ts.TotalSeconds > 60)
+			if ((HttpContext.Session.GetInt32("Otp") != null && ts.TotalSeconds > 60) && !Resend)
 			{
+				Console.WriteLine("-> OTP time Limit not Over");
 				return true;
 			}
-			if (HttpContext.Session.GetInt32("Otp") == null || Resend)
+			if (HttpContext.Session.GetInt32("Otp") == null || Resend || HttpContext.Session.GetString("Email") != email)
 			{
-				HttpContext.Session.Clear();
+				if (Resend)
+				{
+					HttpContext.Session.Clear();
+				}
 				bool f = false;
 				email ??= "nevilpala5@gmail.com";
 				Random rnd = new Random();
@@ -301,7 +374,6 @@ namespace FormApp.Controllers
 				string time = DateTime.Now.ToString();
 				HttpContext.Session.SetString("OtpDateTime", time);
 				HttpContext.Session.SetString("Email", email);
-				ViewData["msgotp"] = otp;
 				Console.WriteLine("OTP : " + otp);
 				string msg = "Your OTP from Address Book is " + otp;
 				f = SendOTP(email, "Subjected to OTP", msg);
@@ -322,7 +394,6 @@ namespace FormApp.Controllers
 		private bool SendOTP(string to, string subject, string body)
 		{
 			bool f = false;
-			string pass = "offo jxyn bbac sfxf";
 
 			string from = "addressbook.noreply@gmail.com";
 			try
@@ -352,18 +423,13 @@ namespace FormApp.Controllers
 			}
 			catch (Exception ex)
 			{
-				f = false; 
+				f = false;
 				Console.WriteLine(ex.Message);
 			}
 			return f;
 		}
 
-		private bool OtpCheck()
-		{
-			bool check = true;
 
-			return check;
-		}
 
 		#endregion
 

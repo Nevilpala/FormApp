@@ -129,8 +129,10 @@
 			console.log(Email);
 			if (Email != null && Email != "") {
 				$('.input-register').addClass('d-none');
+				console.error("CAlled");
+
 				$.ajax({
-					url: "@Url.Action("GenrateOTP","Account")" + "?&email=" + Email + (Resend?+"&Resend="+Resend:""),
+					url: "@Url.Action("GenrateOTP","Account")" + "?&email=" + Email + (Resend?("&Resend="+Resend):""),
 					type: "POST",
 					data: {},
 					success: function (data) {

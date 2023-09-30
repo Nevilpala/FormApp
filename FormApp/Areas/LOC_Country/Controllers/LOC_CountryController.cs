@@ -52,8 +52,7 @@ namespace FormApp.Areas.LOC_Country.Controllers
 			}
 			else
 			{
-				return View("Index", dt);
-
+				return View("Index", dt); 
 			}
 		}
 		#endregion

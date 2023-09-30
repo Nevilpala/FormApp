@@ -11,10 +11,17 @@ namespace FormApp.BAL
             var rd = filterContext.RouteData;
             string currentAction = rd.Values["action"].ToString();
             string currentController = rd.Values["controller"].ToString();
-            //string currentArea = rd.DataTokens["area"].ToString();
+            //string currentArea = rd.DataTokens["area"].ToString(); 
 
-            if (filterContext.HttpContext.Session.GetString("Username") == null && !Convert.ToBoolean(filterContext.HttpContext.Session.GetInt32("Guest")) )
+   //         Console.WriteLine($"-----------------------{i++}---------------------------");
+   //         Console.WriteLine("USERID BOOL   : " + (string.IsNullOrWhiteSpace(filterContext.HttpContext.Session.GetInt32("UserID").ToString())) + (filterContext.HttpContext.Session.GetInt32("UserID")==null));
+   //         Console.WriteLine("USERName BOOL : " + (string.IsNullOrEmpty(filterContext.HttpContext.Session.GetString("Username"))) + (filterContext.HttpContext.Session.GetString("Username") == null));
+			//Console.WriteLine("USERID : " + (filterContext.HttpContext.Session.GetInt32("UserID")));
+			//Console.WriteLine("USERNAME : " + filterContext.HttpContext.Session.GetString("Username"));
+
+			if ((filterContext.HttpContext.Session.GetInt32("UserID") == null || filterContext.HttpContext.Session.GetString("Username") == null) )
             {
+				filterContext.HttpContext.Session.Clear();
                 filterContext.Result = new RedirectResult("~/Login");
             }
         }

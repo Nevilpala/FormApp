@@ -1233,3 +1233,7 @@ h6 {
 }
 
 
+form button.submit{
+    background-color:transparent;
+    border:0;
+}
